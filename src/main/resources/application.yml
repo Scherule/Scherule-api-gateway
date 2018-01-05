@@ -1,14 +1,19 @@
 server:
-  port: 9995
+  port: 80
 
 zuul:
   ignoredServices: '*'
   routes:
-    expenses-tracker-auth:
-      path: /api/auth/**
+    scherule-auth:
+      path: /oauth/**
+      serviceId: scherule-users
+      stripPrefix: false
       sensitive-headers:
-    expenses-tracker-service:
-      path: /api/expenses/**
+    scherule-users:
+      path: /api/users/**
+      sensitive-headers:
+    scherule-calendaring:
+      path: /api/calendaring/**
       sensitive-headers:
   add-proxy-headers: true
 
@@ -21,7 +26,7 @@ eureka:
     leaseExpirationDurationInSeconds: 20
   client:
     serviceUrl:
-      defaultZone: ${EUREKA_URL:http://localhost:9990/eureka/}
+      defaultZone: ${EUREKA_URL:http://localhost:10000/eureka/}
 
 hystrix:
   command:
@@ -35,23 +40,6 @@ hystrix:
 ribbon:
   ReadTimeout: 30000
   ConnectTimeout: 30000
-
-# todo TBF avoid hardcoded value somehow
-services:
-  auth:
-    baseUrl: http://localhost:9998
-
-security:
-  oauth2:
-    client:
-      client-id: expenses-tracker-api
-      client-secret: expenses-tracker-api-secret
-      access-token-uri: ${services.auth.baseUrl}/oauth/token
-      user-authorization-uri: ${services.auth.baseUrl}/oauth/authorize
-    resource:
-      jwt:
-        keyUri: ${services.auth.baseUrl}/oauth/token_key
-  sessions: always
 
 logging:
   level:
