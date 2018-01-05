@@ -36,52 +36,6 @@ scheruleProject {
 
 }
 
-junitPlatform {
-    platformVersion junit_platform_version
-    logManager 'java.util.logging.LogManager'
-//    enableStandardTestTask true
-
-    filters {
-        packages {
-            include 'com.scherule.calendaring'
-        }
-    }
-}
-
-task functionalTest(
-        type: JavaExec,
-        description: 'Runs functional tests.',
-        group: 'Verification'
-) {
-    dependsOn testClasses
-    shouldRunAfter test
-
-    classpath = sourceSets.functional.runtimeClasspath
-
-    main = 'org.junit.platform.console.ConsoleLauncher'
-    args = ['--scan-class-path',
-            sourceSets.functional.output.getClassesDirs().asPath,
-            '--reports-dir', "${buildDir}/test-results/junit-functional"]
-}
-
-task e2eTest(
-        type: JavaExec,
-        description: 'Runs e2e tests.',
-        group: 'Verification'
-) {
-    dependsOn testClasses, startMyAppContainer, allocatePort
-    shouldRunAfter test
-    finalizedBy stopMyAppContainer
-
-    classpath = sourceSets.e2e.runtimeClasspath
-
-    main = 'org.junit.platform.console.ConsoleLauncher'
-    jvmArgs = ["-Dhttp.port=${allocatePort.ext.port}"]
-    args = ['--scan-class-path',
-            sourceSets.e2e.output.getClassesDirs().asPath,
-            '--reports-dir', "${buildDir}/test-results/junit-e2e"]
-}
-
 dependencies {
     compile "com.scherule:scherule-commons:1.1.6"
 }

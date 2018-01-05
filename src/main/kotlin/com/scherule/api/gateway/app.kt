@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component
 @EnableZuulProxy
 @EnableOAuth2Sso
 @Configuration
-class App : WebSecurityConfigurerAdapter() {
+class ApiGatewayApplication : WebSecurityConfigurerAdapter() {
 
     private val LOG = LoggerFactory.getLogger(this.javaClass)
 
@@ -127,5 +127,5 @@ class App : WebSecurityConfigurerAdapter() {
 }
 
 fun main(args: Array<String>) {
-    SpringApplication.run(App::class.java, *args)
+    SpringApplication.run(ApiGatewayApplication::class.java, *args)
 }
