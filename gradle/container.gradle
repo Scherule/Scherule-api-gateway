@@ -1,0 +1,44 @@
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+buildscript {
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "com.bmuschko:gradle-docker-plugin:3.0.8"
+    }
+
+}
+
+apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+
+task allocatePort() {
+    def s = new ServerSocket(0);
+    allocatePort.ext.port = s.getLocalPort()
+}
+
+task buildMyAppImage(type: DockerBuildImage) {
+    inputDir = project.rootDir
+    tag = 'scherule-calendaring'
+    buildArgs = [:]
+}
+
+task createMyAppContainer(type: DockerCreateContainer) {
+    dependsOn buildMyAppImage, allocatePort
+    targetImageId { buildMyAppImage.getImageId() }
+    portBindings = ["8080:${allocatePort.ext.port}"]
+}
+
+task startMyAppContainer(type: DockerStartContainer) {
+    dependsOn createMyAppContainer
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task stopMyAppContainer(type: DockerStopContainer) {
+    targetContainerId { createMyAppContainer.getContainerId() }
+}

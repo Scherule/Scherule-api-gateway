@@ -1,0 +1,66 @@
+server:
+  port: 9995
+
+zuul:
+  ignoredServices: '*'
+  routes:
+    expenses-tracker-auth:
+      path: /api/auth/**
+      sensitive-headers:
+    expenses-tracker-service:
+      path: /api/expenses/**
+      sensitive-headers:
+  add-proxy-headers: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    ip-address: ${HOST:localhost}
+    non-secure-port: ${server.port}
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 20
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URL:http://localhost:9990/eureka/}
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: THREAD
+          thread:
+            timeoutInMilliseconds: 30000
+
+ribbon:
+  ReadTimeout: 30000
+  ConnectTimeout: 30000
+
+# todo TBF avoid hardcoded value somehow
+services:
+  auth:
+    baseUrl: http://localhost:9998
+
+security:
+  oauth2:
+    client:
+      client-id: expenses-tracker-api
+      client-secret: expenses-tracker-api-secret
+      access-token-uri: ${services.auth.baseUrl}/oauth/token
+      user-authorization-uri: ${services.auth.baseUrl}/oauth/authorize
+    resource:
+      jwt:
+        keyUri: ${services.auth.baseUrl}/oauth/token_key
+  sessions: always
+
+logging:
+  level:
+    ROOT: INFO
+    org.springframework.web: INFO
+
+---
+spring:
+  profiles: dev
+logging:
+  level:
+    org.springframework.security: DEBUG
